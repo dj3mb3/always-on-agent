@@ -2,7 +2,9 @@ name: Ops Agent Routine
 
 on:
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    # GitHub docs note 5 minutes as the practical floor for scheduled
+    # workflows; sub-5-minute crons may be throttled/coalesced on their end.
+    - cron: "*/2 * * * *"
   workflow_dispatch: {}
 
 permissions:

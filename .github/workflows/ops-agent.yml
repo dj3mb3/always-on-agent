@@ -11,6 +11,17 @@ permissions:
   issues: write
   contents: read
 
+# The routine's idempotency check (does this issue already have a marker
+# comment/label?) is check-then-act, which is not safe against two runs
+# executing at the same time — e.g. a scheduled fire overlapping a manual
+# "Run now" from the dashboard. This serializes runs: only one executes at
+# once, and if multiple triggers queue up while it's running, only the most
+# recent queued one survives (GitHub cancels older pending runs in the same
+# group), so triggers don't pile up unboundedly.
+concurrency:
+  group: ops-agent-routine
+  cancel-in-progress: false
+
 jobs:
   run-routine:
     runs-on: ubuntu-latest

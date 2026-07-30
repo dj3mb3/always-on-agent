@@ -47,8 +47,10 @@ function readWorkflowCron() {
 async function handleStatus(res) {
   try {
     const cron = readWorkflowCron();
-    const viewJson = await gh(["workflow", "view", WORKFLOW, "--repo", REPO, "--json", "state,name,id"]);
-    const view = JSON.parse(viewJson);
+    const listJson = await gh(["workflow", "list", "--repo", REPO, "--json", "id,name,path,state"]);
+    const list = JSON.parse(listJson);
+    const view = list.find((w) => w.path.endsWith(WORKFLOW));
+    if (!view) throw new Error(`workflow ${WORKFLOW} not found via gh workflow list`);
     sendJson(res, 200, {
       name: view.name,
       enabled: view.state === "active",

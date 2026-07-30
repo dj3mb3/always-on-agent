@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Always-On Ops Agent — Routine</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <header class="card">
+      <div class="title-row">
+        <div>
+          <h1 id="routine-name">Ops Agent Routine</h1>
+          <p class="schedule" id="schedule">Loading schedule…</p>
+        </div>
+        <div class="controls">
+          <span class="badge" id="status-badge">…</span>
+          <label class="switch">
+            <input type="checkbox" id="toggle" disabled />
+            <span class="slider"></span>
+          </label>
+          <button id="run-now" disabled>Run now</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Recent runs</h2>
+      <table id="runs-table">
+        <thead>
+          <tr><th>Status</th><th>Trigger</th><th>Started</th><th>Log</th></tr>
+        </thead>
+        <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Recent agent activity</h2>
+      <ul id="activity-list"><li>Loading…</li></ul>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

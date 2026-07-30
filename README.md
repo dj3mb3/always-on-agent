@@ -37,4 +37,19 @@ The script is idempotent (safe to re-run) but is infrastructure setup, not agent
 
 ### Routine (recurring)
 
-Point the Routines UI at this repo with a prompt that says to read and follow [ROUTINE_PROMPT.md](ROUTINE_PROMPT.md). That file contains the full operating procedure: guardrails, the incident-triage workflow (correlating `issues/` against `runbooks/` and `deploys/recent.json`), the compliance workflow (`contracts/` against `compliance-policy.md`), and the idempotency rules that keep repeated scheduled runs from duplicating work. Label names are defined in [LABELS.md](LABELS.md). [docs/ground-truth.md](docs/ground-truth.md) is the expected-output answer key used to verify the routine, not an input to it.
+The routine runs as a GitHub Actions workflow, [.github/workflows/ops-agent.yml](.github/workflows/ops-agent.yml), instead of depending on the hosted Routines UI. On a schedule (and on manual dispatch) it installs the Claude Code CLI and runs it headlessly against [ROUTINE_PROMPT.md](ROUTINE_PROMPT.md) — the full operating procedure: guardrails, the incident-triage workflow (correlating `issues/` against `runbooks/` and `deploys/recent.json`), the compliance workflow (`contracts/` against `compliance-policy.md`), and the idempotency rules that keep repeated runs from duplicating work. Label names are defined in [LABELS.md](LABELS.md). [docs/ground-truth.md](docs/ground-truth.md) is the expected-output answer key used to verify the routine, not an input to it.
+
+Before the workflow can run, set the API key it needs as a repo secret (do this yourself — don't paste the key anywhere else):
+
+```bash
+gh secret set ANTHROPIC_API_KEY --repo dj3mb3/always-on-agent
+```
+
+### Local dashboard
+
+`dashboard/` is a small, dependency-free local UI that mirrors the hosted Routines page for this workflow — status, schedule, an enable/disable toggle, a "Run now" button, recent run history, and recent agent activity (triaged issues, compliance reviews). It talks to GitHub entirely through your already-authenticated `gh` CLI session; no token is ever exposed to the browser.
+
+```bash
+node dashboard/server.js
+# open http://localhost:4321
+```

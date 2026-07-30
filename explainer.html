@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Meet Ops the Robot Helper!</title>
+<style>
+  :root {
+    --pink: #ff6b9d;
+    --purple: #8b5cf6;
+    --blue: #4ea8ff;
+    --yellow: #ffd93d;
+    --green: #3ddc84;
+    --red: #ff5c5c;
+    --ink: #2b2340;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Comic Sans MS", "Segoe UI Rounded", "Trebuchet MS", sans-serif;
+    background: linear-gradient(160deg, #fff6e5, #ffe1f0 40%, #e6f0ff 100%);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+  }
+  h1.page-title {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    text-align: center;
+    margin: 8px 0 4px;
+  }
+  p.subtitle { text-align: center; margin: 0 0 20px; color: #6b6280; font-size: 1.05rem; }
+
+  .player {
+    width: 100%;
+    max-width: 720px;
+    background: white;
+    border-radius: 28px;
+    box-shadow: 0 18px 40px rgba(120, 90, 160, 0.25);
+    overflow: hidden;
+    border: 6px solid var(--purple);
+  }
+  .screen {
+    position: relative;
+    height: 420px;
+    background: linear-gradient(135deg, #f4f0ff, #ffffff);
+    overflow: hidden;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px 34px;
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+  .illustration {
+    font-size: 5.5rem;
+    line-height: 1;
+    margin-bottom: 18px;
+  }
+  .slide h2 {
+    margin: 0 0 10px;
+    font-size: clamp(1.2rem, 4.2vw, 1.7rem);
+    color: var(--purple);
+  }
+  .slide p {
+    margin: 0;
+    font-size: clamp(1rem, 3.4vw, 1.2rem);
+    line-height: 1.5;
+    max-width: 520px;
+  }
+  .badge {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-weight: bold;
+    font-size: 0.95rem;
+  }
+
+  @keyframes bounce { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-14px);} }
+  @keyframes shake { 0%,100% { transform: rotate(0deg);} 25% { transform: rotate(-8deg);} 75% { transform: rotate(8deg);} }
+  @keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+  @keyframes pulse { 0%,100% { transform: scale(1);} 50% { transform: scale(1.15);} }
+  @keyframes wobble { 0%,100% { transform: rotate(0deg);} 50% { transform: rotate(6deg);} }
+
+  .slide.active .anim-bounce { animation: bounce 1.1s ease-in-out infinite; display: inline-block; }
+  .slide.active .anim-shake { animation: shake 0.5s ease-in-out infinite; display: inline-block; }
+  .slide.active .anim-spin { animation: spin 3s linear infinite; display: inline-block; }
+  .slide.active .anim-pulse { animation: pulse 1s ease-in-out infinite; display: inline-block; }
+  .slide.active .anim-wobble { animation: wobble 1.4s ease-in-out infinite; display: inline-block; }
+
+  .controls {
+    background: var(--purple);
+    padding: 14px 18px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .controls button {
+    background: white;
+    color: var(--purple);
+    border: none;
+    border-radius: 999px;
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .controls button:hover { background: var(--yellow); }
+  .progress-track {
+    flex: 1;
+    height: 10px;
+    background: rgba(255,255,255,0.35);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--yellow);
+    border-radius: 999px;
+    transition: width 0.15s linear;
+  }
+  .counter { color: white; font-size: 0.9rem; min-width: 48px; text-align: center; }
+
+  .below {
+    max-width: 720px;
+    width: 100%;
+    margin-top: 26px;
+    background: white;
+    border-radius: 20px;
+    padding: 20px 26px;
+    box-shadow: 0 10px 24px rgba(120, 90, 160, 0.15);
+  }
+  .below h3 { margin-top: 0; color: var(--purple); }
+  .below a { color: var(--blue); font-weight: bold; }
+  .cast {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 12px;
+  }
+  .cast-item {
+    flex: 1 1 140px;
+    background: #f8f6ff;
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  .cast-item .emoji { font-size: 2rem; }
+</style>
+</head>
+<body>
+  <h1 class="page-title">🤖 Meet Ops, the Robot Helper!</h1>
+  <p class="subtitle">Press play and find out what Ops does all day long.</p>
+
+  <div class="player">
+    <div class="screen" id="screen">
+      <!-- Slides injected by JS -->
+    </div>
+    <div class="controls">
+      <button id="prevBtn" title="Previous">⏮</button>
+      <button id="playBtn" title="Play/Pause">⏸</button>
+      <button id="nextBtn" title="Next">⏭</button>
+      <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+      <span class="counter" id="counter">1 / 12</span>
+    </div>
+  </div>
+
+  <div class="below">
+    <h3>Who's who in this story</h3>
+    <div class="cast">
+      <div class="cast-item"><div class="emoji">📋</div><b>The Trouble List</b><br/>Notes about things that broke (real name: <code>issues</code>)</div>
+      <div class="cast-item"><div class="emoji">📖</div><b>The Big Fix Book</b><br/>Instructions for common problems (real name: <code>runbooks</code>)</div>
+      <div class="cast-item"><div class="emoji">📅</div><b>The Changes Diary</b><br/>What got changed recently (real name: <code>deploys</code>)</div>
+      <div class="cast-item"><div class="emoji">🤝</div><b>The Promise Papers</b><br/>Deals with other companies (real name: <code>contracts</code>)</div>
+      <div class="cast-item"><div class="emoji">📏</div><b>The Rule Book</b><br/>The rules every promise must follow (real name: <code>compliance-policy.md</code>)</div>
+      <div class="cast-item"><div class="emoji">🎛️</div><b>The Control Panel</b><br/>Where grown-ups watch Ops work (real name: the <code>dashboard</code>)</div>
+    </div>
+    <p style="margin-top:16px;">This page is a simple story version of a real project. If you're a grown-up who wants the technical details, check the <a href="README.md">README</a> and <a href="ROUTINE_PROMPT.md">ROUTINE_PROMPT.md</a>.</p>
+  </div>
+
+<script>
+const slides = [
+  {
+    icon: "🤖", anim: "anim-bounce",
+    title: "Meet Ops!",
+    text: "Ops is a robot helper who watches over a big company's computers — even at night, even on weekends, even when everyone else is asleep.",
+  },
+  {
+    icon: "💥", anim: "anim-shake",
+    title: "Uh oh, something broke!",
+    text: "Sometimes a computer program stops working right. Maybe a website gets slow, or something stops working for a customer. People write it down on the Trouble List.",
+  },
+  {
+    icon: "🔍", anim: "anim-bounce",
+    title: "Ops notices right away",
+    text: "Ops checks the Trouble List all the time. As soon as something new shows up, Ops jumps in to help figure out what happened.",
+  },
+  {
+    icon: "📖", anim: "anim-wobble",
+    title: "Ops reads the Big Fix Book",
+    text: "Grown-up helpers already wrote down what usually causes each kind of problem, in the Big Fix Book. Ops reads it to find the matching clues.",
+  },
+  {
+    icon: "📅", anim: "anim-pulse",
+    title: "Ops checks the Changes Diary",
+    text: "A lot of problems happen right after something changes. So Ops peeks at the Changes Diary to see what was updated recently, and if the timing matches.",
+    badge: { text: "Detective work!", color: "var(--blue)" }
+  },
+  {
+    icon: "🚦", anim: "anim-pulse",
+    title: "How urgent is it?",
+    text: "Ops decides how big of a deal the problem is — like a traffic light. Red means lots of people are affected right now. Yellow means it's smaller.",
+  },
+  {
+    icon: "✍️", anim: "anim-bounce",
+    title: "Ops writes a helpful note",
+    text: "Ops leaves a clear note explaining what's probably wrong, what clues were found, and what fix usually works — so a human can look at it fast.",
+  },
+  {
+    icon: "🛑", anim: "anim-pulse",
+    title: "But Ops NEVER fixes it alone!",
+    text: "This is the most important rule: Ops only suggests fixes. A real person always has to press the actual button. Robots don't get to make the big decisions by themselves.",
+    badge: { text: "Big Rule!", color: "var(--red)" }
+  },
+  {
+    icon: "🤝", anim: "anim-wobble",
+    title: "Ops also checks promises",
+    text: "Companies make deals with other companies, written down in Promise Papers. Ops compares every promise against the Rule Book to make sure nothing sneaky was agreed to.",
+  },
+  {
+    icon: "📏", anim: "anim-bounce",
+    title: "Green light, yellow light, red light",
+    text: "For each promise, Ops marks it: all good, needs a closer look, or breaks a rule — and explains why in a simple report card.",
+  },
+  {
+    icon: "⏰", anim: "anim-spin",
+    title: "Ops works on a timer",
+    text: "Ops doesn't wait to be asked. Like an alarm clock, Ops wakes up on its own every few minutes to check for new problems — day or night.",
+  },
+  {
+    icon: "🎛️", anim: "anim-bounce",
+    title: "The Control Panel",
+    text: "Grown-ups can look at a screen called the Control Panel to see what Ops has been doing, turn Ops on or off, or say \"go check right now!\"",
+  },
+  {
+    icon: "🎉", anim: "anim-bounce",
+    title: "That's the whole story!",
+    text: "Ops helps people notice problems faster and keep promises fair — but people always make the final call. Press ⏮ to watch again!",
+    badge: { text: "The End", color: "var(--green)" }
+  },
+];
+
+const screen = document.getElementById("screen");
+const progressBar = document.getElementById("progressBar");
+const counter = document.getElementById("counter");
+const playBtn = document.getElementById("playBtn");
+
+slides.forEach((s, i) => {
+  const div = document.createElement("div");
+  div.className = "slide" + (i === 0 ? " active" : "");
+  div.dataset.index = i;
+  div.innerHTML = `
+    <div class="illustration ${s.anim}">${s.icon}</div>
+    <h2>${s.title}</h2>
+    <p>${s.text}</p>
+    ${s.badge ? `<span class="badge" style="background:${s.badge.color}; color:white;">${s.badge.text}</span>` : ""}
+  `;
+  screen.appendChild(div);
+});
+
+let current = 0;
+let playing = true;
+const SLIDE_MS = 6000;
+const TICK_MS = 100;
+let elapsed = 0;
+
+function render() {
+  document.querySelectorAll(".slide").forEach((el, i) => {
+    el.classList.toggle("active", i === current);
+  });
+  counter.textContent = `${current + 1} / ${slides.length}`;
+}
+
+function goTo(index) {
+  current = (index + slides.length) % slides.length;
+  elapsed = 0;
+  render();
+}
+
+function tick() {
+  if (!playing) return;
+  elapsed += TICK_MS;
+  progressBar.style.width = Math.min(100, (elapsed / SLIDE_MS) * 100) + "%";
+  if (elapsed >= SLIDE_MS) {
+    goTo(current + 1);
+  }
+}
+
+setInterval(tick, TICK_MS);
+render();
+
+document.getElementById("nextBtn").addEventListener("click", () => goTo(current + 1));
+document.getElementById("prevBtn").addEventListener("click", () => goTo(current - 1));
+playBtn.addEventListener("click", () => {
+  playing = !playing;
+  playBtn.textContent = playing ? "⏸" : "▶";
+});
+</script>
+</body>
+</html>

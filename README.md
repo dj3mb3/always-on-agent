@@ -2,6 +2,8 @@
 
 This is the working environment for the Always-On Ops Agent. Fork or clone this into a GitHub repo on your own account, then point your routine at it.
 
+New here or explaining this to someone non-technical? Open [explainer.html](explainer.html) — a simple, animated, kid-friendly walkthrough of what this whole project does.
+
 ## What's in here
 
 - `issues/` — Open production incidents (JSON). Realistic but synthetic.
